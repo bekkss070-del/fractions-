@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Бөлшектер Математикасы</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --secondary: #0ea5e9;
+            --accent: #f59e0b;
+            --purple: #9333ea;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+        }
+
+        body { 
+            font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+            background: linear-gradient(135deg, #e0e7ff 0%, #f1f5f9 100%); 
+            margin: 0; 
+            padding: 20px; 
+            color: var(--text); 
+            min-height: 100vh;
+        }
+
+        .container { 
+            max-width: 800px; 
+            margin: 0 auto; 
+            background: var(--card-bg); 
+            padding: 25px; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); 
+            text-align: center; 
+        }
+
+        h1 { color: var(--primary); margin-top: 0; margin-bottom: 8px; font-size: 26px; }
+        .subtitle { color: #64748b; margin-bottom: 20px; font-size: 15px; }
+
+        .rewards-panel {
+            background: #fff8e1;
+            border: 2px solid #ffe082;
+            border-radius: 14px;
+            padding: 12px 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .rewards-title { font-weight: bold; color: #b45309; font-size: 14px; }
+        .medals-list { display: flex; gap: 8px; flex-wrap: wrap; font-size: 22px; }
+        .medal-item { 
+            background: #fff; 
+            padding: 4px 8px; 
+            border-radius: 8px; 
+            border: 1px solid #fcd34d; 
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 13px;
+            font-weight: bold;
+            color: #d97706;
+        }
+        
+        .level-menu { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
+            gap: 10px; 
+            margin-bottom: 20px; 
+        }
+
+        .level-btn { 
+            padding: 10px; 
+            font-size: 13px; 
+            font-weight: 600; 
+            border: 2px solid #c7d2fe; 
+            border-radius: 12px; 
+            background: #fff; 
+            color: var(--primary); 
+            cursor: pointer; 
+            transition: all 0.2s ease; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 2px;
+        }
+
+        .level-btn .lvl-title { font-size: 11px; opacity: 0.8; font-weight: normal; }
+
+        .level-btn:hover { border-color: var(--primary); transform: translateY(-2px); }
+        .level-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
+
+        .diag-btn { background: #fef3c7; color: #d97706; border-color: #fcd34d; }
+        .diag-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+        .tool-btn { background: #f3e8ff; color: var(--purple); border-color: #e9d5ff; }
+        .tool-btn.active { background: var(--purple); color: #fff; border-color: var(--purple); }
+
+        .mix-btn { border-color: #f43f5e; color: #e11d48; }
+        .mix-btn.active { background: #e11d48; color: #fff; border-color: #e11d48; }
+
+        .progress-bar-container { background: #e2e8f0; border-radius: 10px; height: 14px; width: 100%; margin-bottom: 20px; overflow: hidden; }
+        .progress-bar { background: linear-gradient(90deg, #10b981, #059669); height: 100%; width: 0%; transition: width 0.4s ease; }
+
+        .stats-bar {
+            display: flex;
+            justify-content: space-around;
+            background: #f1f5f9;
+            padding: 10px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .card { 
+            background: #f8fafc; 
+            border: 2px solid #e2e8f0; 
+            padding: 25px 20px; 
+            border-radius: 16px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 18px; 
+            min-height: 280px; 
+            justify-content: center; 
+        }
+
+        .task-title { font-size: 18px; font-weight: 600; color: #334155; }
+        
+        .frac-box { 
+            display: inline-flex; 
+            flex-direction: column; 
+            vertical-align: middle; 
+            text-align: center; 
+            font-size: 22px; 
+            font-weight: bold; 
+            margin: 0 6px; 
+        }
+
+        .frac-top { border-bottom: 2px solid var(--text); padding-bottom: 2px; }
+        .frac-bottom { padding-top: 2px; }
+
+        .options-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 12px; 
+            width: 100%; 
+            max-width: 420px; 
+            margin-top: 10px; 
+        }
+
+        .options-grid.compare-layout {
+            grid-template-columns: repeat(3, 1fr) !important;
+            max-width: 360px;
+        }
+
+        .opt-btn { 
+            background: #fff; 
+            border: 2px solid #cbd5e1; 
+            color: var(--text); 
+            font-size: 22px; 
+            font-weight: bold; 
+            padding: 12px; 
+            border-radius: 12px; 
+            cursor: pointer; 
+            transition: all 0.2s; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 55px; 
+        }
+
+        .opt-btn:hover { border-color: var(--primary); background: #e0e7ff; transform: translateY(-2px); }
+
+        .submit-btn {
+            background: var(--primary);
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(79, 70, 229, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .submit-btn:hover {
+            background: #4338ca;
+            transform: translateY(-2px);
+        }
+
+        .msg { font-weight: 600; font-size: 16px; min-height: 24px; }
+        .ok { color: #059669; }
+        .err { color: #dc2626; }
+
+        svg { background: #fff; border-radius: 10px; padding: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+
+        .visual-tools-panel { 
+            display: none; 
+            width: 100%; 
+            background: #faf5ff; 
+            border: 2px solid #e9d5ff; 
+            border-radius: 16px; 
+            padding: 20px; 
+            box-sizing: border-box; 
+        }
+
+        .tool-controls { 
+            display: flex; 
+            gap: 12px; 
+            justify-content: center; 
+            align-items: center; 
+            flex-wrap: wrap; 
+            margin-bottom: 15px; 
+        }
+
+        .tool-controls input, .tool-controls select { padding: 6px 12px; font-size: 15px; border-radius: 8px; border: 1px solid #cbd5e1; }
+        .number-line-container { width: 100%; max-width: 500px; margin: 15px auto; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Бөлшектер Математикасы</h1>
+    <p class="subtitle" id="game-subtitle">Кез келген деңгейді таңдап орындай аласыз!</p>
+
+    <!-- МЕДАЛЬДАР -->
+    <div class="rewards-panel">
+        <div class="rewards-title">🏆 Медальдар мен марапаттар:</div>
+        <div class="medals-list" id="medals-container">
+            <span style="font-size:12px; color:#94a3b8;">(Әлі медаль жиналмады)</span>
+        </div>
+    </div>
+
+    <!-- МӘЗІР -->
+    <div class="level-menu">
+        <button class="level-btn diag-btn" id="btn-diag" onclick="startDiagnostic()">
+            <span>🔍 Диагностика</span>
+            <span class="lvl-title">Деңгейді анықтау</span>
+        </button>
+        <button class="level-btn tool-btn" id="btn-tool" onclick="toggleVisualTools()">
+            <span>🎨 Үйрену</span>
+            <span class="lvl-title">Визуалды құралдар</span>
+        </button>
+
+        <button class="level-btn active" id="btn-lvl-1" onclick="selectLevel(1, false)">
+            <span>1-деңгей 🔓</span>
+            <span class="lvl-title">Боялған бөлік</span>
+        </button>
+        <button class="level-btn" id="btn-lvl-2" onclick="selectLevel(2, false)">
+            <span>2-деңгей 🔓</span>
+            <span class="lvl-title">Салыстыру</span>
+        </button>
+        <button class="level-btn" id="btn-lvl-3" onclick="selectLevel(3, false)">
+            <span>3-деңгей 🔓</span>
+            <span class="lvl-title">Тең бөлшектер</span>
+        </button>
+        <button class="level-btn" id="btn-lvl-4" onclick="selectLevel(4, false)">
+            <span>4-деңгей 🔓</span>
+            <span class="lvl-title">Сан сәулесі</span>
+        </button>
+        <button class="level-btn" id="btn-lvl-5" onclick="selectLevel(5, false)">
+            <span>5-деңгей 🔓</span>
+            <span class="lvl-title">Қосу-азайту</span>
+        </button>
+        <button class="level-btn" id="btn-lvl-6" onclick="selectLevel(6, false)">
+            <span>6-деңгей 🔓</span>
+            <span class="lvl-title">Аралас сандар</span>
+        </button>
+        <button class="level-btn" id="btn-lvl-7" onclick="selectLevel(7, false)">
+            <span>7-деңгей 🔓</span>
+            <span class="lvl-title">Санның бөлігі</span>
+        </button>
+        <button class="level-btn mix-btn" id="btn-lvl-8" onclick="selectLevel(8, false)">
+            <span>8-деңгей 🔓</span>
+            <span class="lvl-title">🔥 Аралас Есептер</span>
+        </button>
+    </div>
+
+    <!-- СТАТИСТИКА -->
+    <div id="game-progress-area">
+        <div class="stats-bar">
+            <div>🔥 Ағымдағы серия: <span id="current-streak" style="color:var(--primary);">0 / 10</span></div>
+            <div>⭐ Ең үздік рекорд: <span id="max-streak" style="color:#059669;">0</span></div>
+        </div>
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+    </div>
+
+    <!-- ЕСЕП КАРТОЧКАСЫ -->
+    <div class="card" id="game-card">
+        <div class="task-title" id="task-question">Жүктелуде...</div>
+        <div id="svg-area"></div>
+        <div id="task-expression"></div>
+        <div class="options-grid" id="options-container"></div>
+        <div class="msg" id="msg-box"></div>
+    </div>
+
+    <!-- ҮЙРЕНУ ПАНЕЛІ -->
+    <div class="visual-tools-panel" id="visual-tools-panel">
+        <h3 style="margin-top:0; color:var(--purple);">🎨 Интерактивті Бөлшек Құрастырушы (Үйрену)</h3>
+        <p style="font-size:13px; color:#64748b;">Фигураны таңдап, бөліктерін шерту арқылы бояңыз:</p>
+        
+        <div class="tool-controls">
+            <label>Фигура:</label>
+            <select id="tool-shape" onchange="updateInteractiveTool()">
+                <option value="pie">Дөңгелек</option>
+                <option value="bar">Тіктөртбұрыш</option>
+                <option value="square">Шаршы (Квадрат)</option>
+                <option value="hexagon">Алтыбұрыш</option>
+            </select>
+
+            <label>Бөлімі (20-ға дейін):</label>
+            <input type="number" id="tool-denom" value="4" min="2" max="20" style="width:60px;" onchange="updateInteractiveTool()">
+        </div>
+
+        <div id="interactive-svg-area"></div>
+        <div style="font-size: 20px; font-weight: bold; margin-top: 10px;" id="interactive-frac-label"></div>
+
+        <hr style="margin: 20px 0; border: 0; border-top: 1px solid #e9d5ff;">
+
+        <h3 style="margin-top:0; color:var(--purple);">📏 Сан сәулесі (20-ға дейінгі сандар)</h3>
+        <div class="number-line-container">
+            <input type="range" id="tool-slider" min="0" max="20" value="2" style="width:100%; cursor:pointer;" oninput="updateNumberLine()">
+            <div id="number-line-svg"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = null;
+
+    function initAudio() {
+        if (!audioCtx) audioCtx = new AudioContext();
+    }
+
+    function playSound(type) {
+        try {
+            initAudio();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+
+            const now = audioCtx.currentTime;
+
+            if (type === 'correct') {
+                const freqs = [523.25, 659.25, 783.99]; 
+                freqs.forEach((freq, idx) => {
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+                    gain.gain.setValueAtTime(0, now + idx * 0.08);
+                    gain.gain.linearRampToValueAtTime(0.2, now + idx * 0.08 + 0.02);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.35);
+                    
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start(now + idx * 0.08);
+                    osc.stop(now + idx * 0.08 + 0.35);
+                });
+            } 
+            else if (type === 'error') {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(220, now);
+                osc.frequency.exponentialRampToValueAtTime(110, now + 0.25);
+                
+                gain.gain.setValueAtTime(0.25, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.25);
+            } 
+            else if (type === 'win') {
+                const notes = [392.00, 523.25, 659.25, 783.99, 1046.50];
+                notes.forEach((freq, i) => {
+                    const noteOsc = audioCtx.createOscillator();
+                    const noteGain = audioCtx.createGain();
+                    noteOsc.type = 'sine';
+                    noteOsc.frequency.setValueAtTime(freq, now + i * 0.09);
+                    
+                    noteGain.gain.setValueAtTime(0, now + i * 0.09);
+                    noteGain.gain.linearRampToValueAtTime(0.25, now + i * 0.09 + 0.02);
+                    noteGain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.09 + 0.4);
+                    
+                    noteOsc.connect(noteGain);
+                    noteGain.connect(audioCtx.destination);
+                    noteOsc.start(now + i * 0.09);
+                    noteOsc.stop(now + i * 0.09 + 0.4);
+                });
+            }
+        } catch(e) { console.log("Audio not supported"); }
+    }
+
+    function triggerConfetti(isGrand = false) {
+        if (typeof confetti === 'function') {
+            if (isGrand) {
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+                setTimeout(() => confetti({ particleCount: 80, angle: 60, spread: 55, origin: { x: 0 } }), 200);
+                setTimeout(() => confetti({ particleCount: 80, angle: 120, spread: 55, origin: { x: 1 } }), 400);
+            } else {
+                confetti({ particleCount: 35, spread: 50, origin: { y: 0.7 } });
+            }
+        }
+    }
+
+    let currentLvl = 1;
+    let unlockedLevels = [1, 2, 3, 4, 5, 6, 7, 8];
+    let streak = 0;
+    let maxStreak = 0;
+    let correctAnswer = "";
+
+    let currentInteractiveVal = 0;
+    let currentInteractiveDenom = 4;
+    let isDragging = false;
+
+    let usedTasks = new Set();
+    let lastShapeType = 0;
+
+    const REQ_STREAK_LEVEL = 10; 
+
+    const levelMedals = {
+        1: { name: "Боялған бөлік шебері", icon: "🥇 1-деңгей" },
+        2: { name: "Салыстыру сарапшысы", icon: "🥈 2-деңгей" },
+        3: { name: "Тең бөлшектер маманы", icon: "🥉 3-деңгей" },
+        4: { name: "Сан сәулесінің навигаторы", icon: "🎯 4-деңгей" },
+        5: { name: "Қосу-азайту генийі", icon: "⭐ 5-деңгей" },
+        6: { name: "Аралас сандар профессоры", icon: "💎 6-деңгей" },
+        7: { name: "Санның бөлігі чемпионы", icon: "👑 7-деңгей" },
+        8: { name: "Математика Абсолюттік Чемпионы", icon: "🏆 8-деңгей" }
+    };
+    let earnedMedals = [];
+
+    let isDiagnosticMode = false;
+    let diagCurrentLvl = 1;
+    let diagLvlCorrectCount = 0;
+    const DIAG_REQ_PER_LEVEL = 5; 
+
+    let activeToolParts = [true, true, false, false];
+    const shapeColors = ['#4f46e5', '#0ea5e9', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4'];
+
+    function rand(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
+    function shuffle(array) { return array.sort(() => Math.random() - 0.5); }
+
+    function updateHeader() {
+        if(isDiagnosticMode) {
+            document.getElementById('game-subtitle').innerText = "Баланың деңгейін анықтау тесті жүріп жатыр...";
+            document.getElementById('current-streak').innerText = `Диагностика: ${diagCurrentLvl}-деңгей (${diagLvlCorrectCount}/${DIAG_REQ_PER_LEVEL})`;
+            document.getElementById('progress-bar').style.width = ((diagCurrentLvl - 1) * 12.5 + (diagLvlCorrectCount / DIAG_REQ_PER_LEVEL) * 12.5) + '%';
+        } else {
+            document.getElementById('game-subtitle').innerHTML = `${REQ_STREAK_LEVEL} есепке <b>қатар дұрыс</b> жауап беріп, медаль алыңыз!`;
+            document.getElementById('current-streak').innerText = `${streak} / ${REQ_STREAK_LEVEL}`;
+            document.getElementById('max-streak').innerText = maxStreak;
+            document.getElementById('progress-bar').style.width = ((streak % REQ_STREAK_LEVEL) * (100 / REQ_STREAK_LEVEL)) + '%';
+        }
+        renderMedals();
+    }
+
+    function renderMedals() {
+        let container = document.getElementById('medals-container');
+        if(earnedMedals.length === 0) {
+            container.innerHTML = `<span style="font-size:12px; color:#94a3b8;">(Әлі медаль жиналмады)</span>`;
+            return;
+        }
+        container.innerHTML = earnedMedals.map(lvl => 
+            `<div class="medal-item" title="${levelMedals[lvl].name}">${levelMedals[lvl].icon}</div>`
+        ).join('');
+    }
+
+    function resetActiveButtons() {
+        document.getElementById('btn-diag').classList.remove('active');
+        document.getElementById('btn-tool').classList.remove('active');
+        for(let i=1; i<=8; i++) {
+            let btn = document.getElementById('btn-lvl-' + i);
+            if(btn) btn.classList.remove('active');
+        }
+    }
+
+    function selectLevel(lvl, keepStreak = false) {
+        isDiagnosticMode = false;
+        currentLvl = lvl;
+        
+        if(!keepStreak) {
+            streak = 0;
+        }
+        
+        document.getElementById('game-card').style.display = 'flex';
+        document.getElementById('game-progress-area').style.display = 'block';
+        document.getElementById('visual-tools-panel').style.display = 'none';
+
+        resetActiveButtons();
+        document.getElementById('btn-lvl-' + lvl).classList.add('active');
+        
+        updateHeader();
+        generateTask();
+    }
+
+    function startDiagnostic() {
+        isDiagnosticMode = true;
+        diagCurrentLvl = 1;
+        diagLvlCorrectCount = 0;
+        currentLvl = 1;
+
+        document.getElementById('game-card').style.display = 'flex';
+        document.getElementById('game-progress-area').style.display = 'block';
+        document.getElementById('visual-tools-panel').style.display = 'none';
+
+        resetActiveButtons();
+        document.getElementById('btn-diag').classList.add('active');
+
+        updateHeader();
+        generateTask();
+    }
+
+    function toggleVisualTools() {
+        resetActiveButtons();
+        document.getElementById('btn-tool').classList.add('active');
+
+        document.getElementById('game-card').style.display = 'none';
+        document.getElementById('game-progress-area').style.display = 'none';
+        document.getElementById('visual-tools-panel').style.display = 'block';
+
+        updateInteractiveTool();
+    }
+
+    function makeFracHTML(n, d) {
+        return `<div class="frac-box"><span class="frac-top">${n}</span><span class="frac-bottom">${d}</span></div>`;
+    }
+
+    /* 4-ДЕҢГЕЙ ҮШІН ИНТЕРАКТИВТІ САНДЫҚ СӘУЛЕ */
+    function renderInteractiveNumberLine(val, d) {
+        currentInteractiveVal = val;
+        currentInteractiveDenom = d;
+        let width = 360;
+        let step = width / d;
+        let svg = `<svg id="interactive-line-svg" width="${width + 40}" height="95" viewBox="0 0 ${width + 40} 95" style="user-select:none; cursor:pointer;" onmousedown="startDragNL(event)" onmousemove="dragNL(event)" onmouseup="endDragNL()" onmouseleave="endDragNL()" ontouchstart="startDragNL(event)" ontouchmove="dragNL(event)" ontouchend="endDragNL()">`;
+        
+        svg += `<line x1="20" y1="50" x2="${width + 20}" y2="50" stroke="#334155" stroke-width="4" stroke-linecap="round"/>`;
+        svg += `<polygon points="${width+25},50 ${width+13},43 ${width+13},57" fill="#334155"/>`;
+
+        for(let i=0; i<=d; i++) {
+            let x = 20 + i * step;
+            svg += `<line x1="${x}" y1="40" x2="${x}" y2="60" stroke="#334155" stroke-width="2"/>`;
+            if(i === 0) {
+                svg += `<text x="${x}" y="78" font-size="15" font-weight="bold" text-anchor="middle" fill="#334155">0</text>`;
+            } else if(i === d) {
+                svg += `<text x="${x}" y="78" font-size="15" font-weight="bold" text-anchor="middle" fill="#334155">1</text>`;
+            }
+        }
+
+        let pointX = 20 + val * step;
+        
+        // Нүктенің үстіндегі ағымдағы бөлшек белгісі
+        svg += `<g transform="translate(${pointX}, 20)">
+            <rect x="-24" y="-18" width="48" height="24" rx="6" fill="#ef4444"/>
+            <text x="0" y="-2" font-size="13" font-weight="bold" text-anchor="middle" fill="#ffffff">${val}/${d}</text>
+        </g>`;
+        
+        // Қозғалатын қызыл нүкте
+        svg += `<circle cx="${pointX}" cy="50" r="11" fill="#ef4444" stroke="#ffffff" stroke-width="3" style="cursor:grab; filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.2));"/>`;
+        
+        svg += `</svg>`;
+        return svg;
+    }
+
+    function handleNLInput(clientX) {
+        let svgElem = document.getElementById('interactive-line-svg');
+        if(!svgElem) return;
+        let rect = svgElem.getBoundingClientRect();
+        let mouseX = clientX - rect.left - 20;
+        let width = 360;
+        let step = width / currentInteractiveDenom;
+
+        let nearestVal = Math.round(mouseX / step);
+        if(nearestVal < 0) nearestVal = 0;
+        if(nearestVal > currentInteractiveDenom) nearestVal = currentInteractiveDenom;
+
+        if(nearestVal !== currentInteractiveVal) {
+            document.getElementById('svg-area').innerHTML = renderInteractiveNumberLine(nearestVal, currentInteractiveDenom);
+        }
+    }
+
+    function startDragNL(e) {
+        isDragging = true;
+        let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        handleNLInput(clientX);
+    }
+
+    function dragNL(e) {
+        if(!isDragging) return;
+        let clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        handleNLInput(clientX);
+    }
+
+    function endDragNL() {
+        isDragging = false;
+    }
+
+    function renderRandomShape(n, d) {
+        let color = shapeColors[rand(0, shapeColors.length - 1)];
+        let type = rand(1, 5);
+        while (type === lastShapeType) {
+            type = rand(1, 5);
+        }
+        lastShapeType = type;
+
+        if(type === 1) {
+            let svg = `<svg width="130" height="130" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#fff" stroke="#334155" stroke-width="2"/>`;
+            let angle = 360 / d;
+            for(let i=0; i<d; i++) {
+                let a1 = (i * angle - 90) * Math.PI / 180;
+                let a2 = ((i + 1) * angle - 90) * Math.PI / 180;
+                let x1 = 50 + 45 * Math.cos(a1);
+                let y1 = 50 + 45 * Math.sin(a1);
+                let x2 = 50 + 45 * Math.cos(a2);
+                let y2 = 50 + 45 * Math.sin(a2);
+                let fill = i < n ? color : '#fff';
+                let largeArc = angle > 180 ? 1 : 0;
+                svg += `<path d="M50,50 L${x1},${y1} A45,45 0 ${largeArc},1 ${x2},${y2} Z" fill="${fill}" stroke="#334155" stroke-width="1.5"/>`;
+            }
+            return svg + `</svg>`;
+        } 
+        else if(type === 2) {
+            let width = 180;
+            let partW = width / d;
+            let svg = `<svg width="${width + 10}" height="60" viewBox="0 0 ${width + 10} 60">`;
+            svg += `<rect x="5" y="5" width="${width}" height="50" fill="#fff" stroke="#334155" stroke-width="2"/>`;
+            for(let i=0; i<d; i++) {
+                let fill = i < n ? color : '#fff';
+                svg += `<rect x="${5 + i*partW}" y="5" width="${partW}" height="50" fill="${fill}" stroke="#334155" stroke-width="1.5"/>`;
+            }
+            return svg + `</svg>`;
+        }
+        else if(type === 3) {
+            let cols = Math.ceil(Math.sqrt(d));
+            let rows = Math.ceil(d / cols);
+            let size = 120;
+            let cellW = size / cols;
+            let cellH = size / rows;
+            let svg = `<svg width="${size + 10}" height="${size + 10}" viewBox="0 0 ${size + 10} ${size + 10}">`;
+            svg += `<rect x="5" y="5" width="${size}" height="${size}" fill="#fff" stroke="#334155" stroke-width="2"/>`;
+            for(let i=0; i<d; i++) {
+                let r = Math.floor(i / cols);
+                let c = i % cols;
+                let fill = i < n ? color : '#fff';
+                svg += `<rect x="${5 + c*cellW}" y="${5 + r*cellH}" width="${cellW}" height="${cellH}" fill="${fill}" stroke="#334155" stroke-width="1.5"/>`;
+            }
+            return svg + `</svg>`;
+        }
+        else if(type === 4) {
+            let svg = `<svg width="130" height="130" viewBox="0 0 100 100">`;
+            let angle = 360 / d;
+            for(let i=0; i<d; i++) {
+                let a1 = (i * angle) * Math.PI / 180;
+                let a2 = ((i + 1) * angle) * Math.PI / 180;
+                let x1 = 50 + 45 * Math.cos(a1);
+                let y1 = 50 + 45 * Math.sin(a1);
+                let x2 = 50 + 45 * Math.cos(a2);
+                let y2 = 50 + 45 * Math.sin(a2);
+                let fill = i < n ? color : '#fff';
+                svg += `<polygon points="50,50 ${x1},${y1} ${x2},${y2}" fill="${fill}" stroke="#334155" stroke-width="1.5"/>`;
+            }
+            return svg + `</svg>`;
+        }
+        else {
+            let width = 160;
+            let partW = width / d;
+            let svg = `<svg width="${width + 10}" height="70" viewBox="0 0 ${width + 10} 70">`;
+            for(let i=0; i<d; i++) {
+                let x1 = 5 + i * partW;
+                let x2 = 5 + (i + 1) * partW;
+                let fill = i < n ? color : '#fff';
+                if(i % 2 === 0) {
+                    svg += `<polygon points="${x1},65 ${x2},65 ${(x1+x2)/2},5" fill="${fill}" stroke="#334155" stroke-width="1.5"/>`;
+                } else {
+                    svg += `<polygon points="${x1},5 ${x2},5 ${(x1+x2)/2},65" fill="${fill}" stroke="#334155" stroke-width="1.5"/>`;
+                }
+            }
+            return svg + `</svg>`;
+        }
+    }
+
+    function updateInteractiveTool() {
+        let shape = document.getElementById('tool-shape').value;
+        let d = parseInt(document.getElementById('tool-denom').value);
+        if(d < 2) d = 2;
+        if(d > 20) d = 20;
+
+        if(activeToolParts.length !== d) {
+            activeToolParts = new Array(d).fill(false);
+            activeToolParts[0] = true;
+        }
+
+        let filledCount = activeToolParts.filter(x => x).length;
+        let area = document.getElementById('interactive-svg-area');
+
+        if(shape === 'pie') {
+            let svg = `<svg width="150" height="150" viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="#fff" stroke="#334155" stroke-width="2"/>`;
+            let angle = 360 / d;
+            for(let i=0; i<d; i++) {
+                let a1 = (i * angle - 90) * Math.PI / 180;
+                let a2 = ((i + 1) * angle - 90) * Math.PI / 180;
+                let x1 = 50 + 45 * Math.cos(a1);
+                let y1 = 50 + 45 * Math.sin(a1);
+                let x2 = 50 + 45 * Math.cos(a2);
+                let y2 = 50 + 45 * Math.sin(a2);
+                let fill = activeToolParts[i] ? '#9333ea' : '#fff';
+                let largeArc = angle > 180 ? 1 : 0;
+                svg += `<path d="M50,50 L${x1},${y1} A45,45 0 ${largeArc},1 ${x2},${y2} Z" fill="${fill}" stroke="#334155" stroke-width="1" onclick="togglePart(${i})" style="cursor:pointer;"/>`;
+            }
+            svg += `</svg>`;
+            area.innerHTML = svg;
+        } 
+        else if(shape === 'bar') {
+            let width = 280;
+            let partW = width / d;
+            let svg = `<svg width="${width + 10}" height="60" viewBox="0 0 ${width + 10} 60">`;
+            svg += `<rect x="5" y="5" width="${width}" height="50" fill="#fff" stroke="#334155" stroke-width="2"/>`;
+            for(let i=0; i<d; i++) {
+                let fill = activeToolParts[i] ? '#9333ea' : '#fff';
+                svg += `<rect x="${5 + i*partW}" y="5" width="${partW}" height="50" fill="${fill}" stroke="#334155" stroke-width="1" onclick="togglePart(${i})" style="cursor:pointer;"/>`;
+            }
+            svg += `</svg>`;
+            area.innerHTML = svg;
+        }
+        else if(shape === 'square') {
+            let cols = Math.ceil(Math.sqrt(d));
+            let rows = Math.ceil(d / cols);
+            let size = 140;
+            let cellW = size / cols;
+            let cellH = size / rows;
+            let svg = `<svg width="${size + 10}" height="${size + 10}" viewBox="0 0 ${size + 10} ${size + 10}">`;
+            svg += `<rect x="5" y="5" width="${size}" height="${size}" fill="#fff" stroke="#334155" stroke-width="2"/>`;
+            for(let i=0; i<d; i++) {
+                let r = Math.floor(i / cols);
+                let c = i % cols;
+                let fill = activeToolParts[i] ? '#9333ea' : '#fff';
+                svg += `<rect x="${5 + c*cellW}" y="${5 + r*cellH}" width="${cellW}" height="${cellH}" fill="${fill}" stroke="#334155" stroke-width="1" onclick="togglePart(${i})" style="cursor:pointer;"/>`;
+            }
+            svg += `</svg>`;
+            area.innerHTML = svg;
+        }
+        else if(shape === 'hexagon') {
+            let svg = `<svg width="150" height="150" viewBox="0 0 100 100">`;
+            let angle = 360 / d;
+            for(let i=0; i<d; i++) {
+                let a1 = (i * angle) * Math.PI / 180;
+                let a2 = ((i + 1) * angle) * Math.PI / 180;
+                let x1 = 50 + 45 * Math.cos(a1);
+                let y1 = 50 + 45 * Math.sin(a1);
+                let x2 = 50 + 45 * Math.cos(a2);
+                let y2 = 50 + 45 * Math.sin(a2);
+                let fill = activeToolParts[i] ? '#9333ea' : '#fff';
+                svg += `<polygon points="50,50 ${x1},${y1} ${x2},${y2}" fill="${fill}" stroke="#334155" stroke-width="1.5" onclick="togglePart(${i})" style="cursor:pointer;"/>`;
+            }
+            svg += `</svg>`;
+            area.innerHTML = svg;
+        }
+
+        document.getElementById('interactive-frac-label').innerHTML = `Бөлшек: ${makeFracHTML(filledCount, d)}`;
+        document.getElementById('tool-slider').max = d;
+        document.getElementById('tool-slider').value = filledCount;
+        updateNumberLine();
+    }
+
+    function togglePart(index) {
+        activeToolParts[index] = !activeToolParts[index];
+        updateInteractiveTool();
+    }
+
+    function updateNumberLine() {
+        let d = parseInt(document.getElementById('tool-denom').value);
+        let n = parseInt(document.getElementById('tool-slider').value);
+        let svgArea = document.getElementById('number-line-svg');
+
+        let width = 420;
+        let step = width / d;
+
+        let svg = `<svg width="${width + 40}" height="80" viewBox="0 0 ${width + 40} 80">`;
+        svg += `<line x1="20" y1="30" x2="${width + 20}" y2="30" stroke="#334155" stroke-width="3"/>`;
+
+        for(let i=0; i<=d; i++) {
+            let x = 20 + i * step;
+            svg += `<line x1="${x}" y1="20" x2="${x}" y2="40" stroke="#334155" stroke-width="2"/>`;
+            
+            if(i === 0) {
+                svg += `<text x="${x}" y="58" font-size="13" font-weight="bold" text-anchor="middle" fill="#334155">0</text>`;
+            } else if(i === d) {
+                svg += `<text x="${x}" y="58" font-size="13" font-weight="bold" text-anchor="middle" fill="#334155">1</text>`;
+            } else if(d <= 10 || i % 2 === 0) {
+                svg += `<text x="${x}" y="52" font-size="11" font-weight="bold" text-anchor="middle" fill="#64748b">${i}</text>`;
+                svg += `<line x1="${x - 7}" y1="56" x2="${x + 7}" y2="56" stroke="#64748b" stroke-width="1.5"/>`;
+                svg += `<text x="${x}" y="68" font-size="11" font-weight="bold" text-anchor="middle" fill="#64748b">${d}</text>`;
+            }
+        }
+
+        let pointX = 20 + n * step;
+        svg += `<circle cx="${pointX}" cy="30" r="7" fill="#f59e0b"/>`;
+        svg += `</svg>`;
+
+        svgArea.innerHTML = svg;
+    }
+
+    function generateTask() {
+        document.getElementById('msg-box').innerText = '';
+        let q = document.getElementById('task-question');
+        let svgArea = document.getElementById('svg-area');
+        let expr = document.getElementById('task-expression');
+        let optContainer = document.getElementById('options-container');
+
+        svgArea.innerHTML = '';
+        expr.innerHTML = '';
+        optContainer.innerHTML = '';
+        optContainer.classList.remove('compare-layout');
+
+        let activeLvl = isDiagnosticMode ? diagCurrentLvl : currentLvl;
+        
+        let effectiveType = activeLvl;
+        let isMixLevel = false;
+        if(activeLvl === 8) {
+            effectiveType = rand(1, 7);
+            isMixLevel = true;
+        }
+
+        let options = [];
+        let taskKey = "";
+        let attempts = 0;
+        let isCompareTask = false;
+
+        do {
+            attempts++;
+            options = [];
+            isCompareTask = false;
+
+            if(effectiveType === 1) {
+                let d = isMixLevel ? rand(4, 15) : rand(3, 10);
+                let n = rand(1, d - 1);
+                taskKey = `L1_${n}_${d}`;
+                correctAnswer = `${n}/${d}`;
+
+                if(!usedTasks.has(taskKey) || attempts > 50) {
+                    q.innerText = `Боялған бөлікті білдіретін бөлшекті таңдаңыз:`;
+                    svgArea.innerHTML = renderRandomShape(n, d);
+                    options = [
+                        { html: makeFracHTML(n, d), val: `${n}/${d}` },
+                        { html: makeFracHTML(d - n, d), val: `${d-n}/${d}` },
+                        { html: makeFracHTML(n, d + 1), val: `${n}/${d+1}` },
+                        { html: makeFracHTML(n + 1 >= d ? 1 : n + 1, d), val: `${n+1}/${d}` }
+                    ];
+                }
+            } 
+            else if(effectiveType === 2) {
+                isCompareTask = true;
+                let d = isMixLevel ? rand(8, 25) : rand(4, 15);
+                let n1 = rand(1, d - 1);
+                let n2 = rand(1, d - 1);
+
+                taskKey = `L2_${n1}_${n2}_${d}`;
+                correctAnswer = n1 > n2 ? '>' : (n1 < n2 ? '<' : '=');
+
+                if(!usedTasks.has(taskKey) || attempts > 50) {
+                    q.innerText = `Бос орынға тиісті белгіні таңдаңыз:`;
+                    expr.innerHTML = `<div style="display:flex; align-items:center; font-size:24px;">
+                        ${makeFracHTML(n1, d)} <b style="margin: 0 15px; color:var(--primary);">?</b> ${makeFracHTML(n2, d)}
+                    </div>`;
+
+                    options = [ 
+                        { html: '>', val: '>' }, 
+                        { html: '<', val: '<' }, 
+                        { html: '=', val: '=' } 
+                    ];
+                }
+            } 
+            else if(effectiveType === 3) {
+                let n1 = rand(1, 6);
+                let d1 = rand(n1 + 1, 8);
+                let k = rand(2, 4);
+                let n2 = n1 * k;
+                let d2 = d1 * k;
+
+                taskKey = `L3_${n1}_${d1}_${k}`;
+                correctAnswer = n2.toString();
+
+                if(!usedTasks.has(taskKey) || attempts > 50) {
+                    q.innerText = `Сұрақ белгісінің орнындағы санды тап:`;
+                    expr.innerHTML = `<div style="display:flex; align-items:center; font-size:24px;">
+                        ${makeFracHTML(n1, d1)} = <div class="frac-box"><span class="frac-top" style="color:var(--primary);">?</span><span class="frac-bottom">${d2}</span></div>
+                    </div>`;
+
+                    options = [
+                        { html: n2, val: n2.toString() },
+                        { html: n2 + 1, val: (n2 + 1).toString() },
+                        { html: Math.max(1, n2 - 1), val: Math.max(1, n2 - 1).toString() },
+                        { html: n2 + k, val: (n2 + k).toString() }
+                    ];
+                }
+            }
+            else if(effectiveType === 4) {
+                /* 4-ДЕҢГЕЙ: ИНТЕРАКТИВТІ САНДЫҚ СӘУЛЕ СҰРАҒЫ */
+                let d = isMixLevel ? rand(4, 10) : rand(4, 8);
+                let n = rand(1, d - 1);
+                taskKey = `L4_interactive_${n}_${d}`;
+                correctAnswer = `${n}/${d}`;
+
+                if(!usedTasks.has(taskKey) || attempts > 50) {
+                    q.innerHTML = `Нүктені жылжытып, сәуледе <b>${makeFracHTML(n, d)}</b> бөлшегін белгілеңіз:`;
+                    
+                    // Бұрынғы static сурет орнына интерактивті SVG
+                    let startPoint = 0; 
+                    svgArea.innerHTML = renderInteractiveNumberLine(startPoint, d);
+
+                    // Таңдау нұсқаларының орнына Растау батырмасын шығарамыз
+                    let btn = document.createElement('button');
+                    btn.className = 'submit-btn';
+                    btn.innerText = 'Жауапты тексеру';
+                    btn.onclick = () => checkAnswer(`${currentInteractiveVal}/${currentInteractiveDenom}`);
+                    optContainer.appendChild(btn);
+                    
+                    usedTasks.add(taskKey);
+                    return;
+                }
+            }
+            else if(effectiveType === 5) {
+                let d = isMixLevel ? rand(12, 25) : rand(5, 15);
+                let isAdd = rand(1, 2) === 1;
+                
+                if(isAdd) {
+                    let n1 = rand(1, d - 2);
+                    let n2 = rand(1, d - n1);
+                    let sum = n1 + n2;
+                    taskKey = `L5_add_${n1}_${n2}_${d}`;
+                    correctAnswer = `${sum}/${d}`;
+
+                    if(!usedTasks.has(taskKey) || attempts > 50) {
+                        q.innerText = `Өрнектің мәнін таңдаңыз:`;
+                        expr.innerHTML = `<div style="display:flex; align-items:center; font-size:24px;">
+                            ${makeFracHTML(n1, d)} + ${makeFracHTML(n2, d)} = ?
+                        </div>`;
+                        options = [
+                            { html: makeFracHTML(sum, d), val: `${sum}/${d}` },
+                            { html: makeFracHTML(sum, d + d), val: `${sum}/${d+d}` },
+                            { html: makeFracHTML(Math.max(1, sum - 1), d), val: `${Math.max(1, sum - 1)}/${d}` },
+                            { html: makeFracHTML(sum + 1, d), val: `${sum+1}/${d}` }
+                        ];
+                    }
+                } else {
+                    let n1 = rand(3, d - 1);
+                    let n2 = rand(1, n1 - 1);
+                    let diff = n1 - n2;
+                    taskKey = `L5_sub_${n1}_${n2}_${d}`;
+                    correctAnswer = `${diff}/${d}`;
+
+                    if(!usedTasks.has(taskKey) || attempts > 50) {
+                        q.innerText = `Азайту амалын орындаңыз:`;
+                        expr.innerHTML = `<div style="display:flex; align-items:center; font-size:24px;">
+                            ${makeFracHTML(n1, d)} - ${makeFracHTML(n2, d)} = ?
+                        </div>`;
+                        options = [
+                            { html: makeFracHTML(diff, d), val: `${diff}/${d}` },
+                            { html: makeFracHTML(diff + 1, d), val: `${diff+1}/${d}` },
+                            { html: makeFracHTML(n1 + n2, d), val: `${n1+n2}/${d}` },
+                            { html: makeFracHTML(diff, d - 1), val: `${diff}/${d-1}` }
+                        ];
+                    }
+                }
+            }
+            else if(effectiveType === 6) {
+                let whole = rand(1, 5);
+                let d = rand(3, 8);
+                let rem = rand(1, d - 1);
+                let top = whole * d + rem;
+
+                taskKey = `L6_${top}_${d}`;
+                correctAnswer = `${whole} ${rem}/${d}`;
+
+                if(!usedTasks.has(taskKey) || attempts > 50) {
+                    q.innerText = `Бұрыс бөлшекті аралас сан түрінде таңдаңыз:`;
+                    expr.innerHTML = makeFracHTML(top, d);
+
+                    options = [
+                        { html: `${whole} ${makeFracHTML(rem, d)}`, val: `${whole} ${rem}/${d}` },
+                        { html: `${whole + 1} ${makeFracHTML(rem, d)}`, val: `${whole+1} ${rem}/${d}` },
+                        { html: `${whole} ${makeFracHTML(rem == 1 ? rem + 1 : 1, d)}`, val: `${whole} ${rem==1?rem+1:1}/${d}` },
+                        { html: `${rem} ${makeFracHTML(whole, d)}`, val: `${rem} ${whole}/${d}` }
+                    ];
+                }
+            }
+            else if(effectiveType === 7) {
+                let d = rand(3, 8);
+                let k = rand(2, 6);
+                let total = d * k;
+                let part = k;
+
+                taskKey = `L7_${total}_${d}`;
+                correctAnswer = part.toString();
+
+                if(!usedTasks.has(taskKey) || attempts > 50) {
+                    q.innerText = `Есепті шығарыңыз:`;
+                    expr.innerHTML = `<div style="font-size:20px; line-height: 1.8;">
+                        Тәрелкеде ${total} кәмпит бар. Оның ${makeFracHTML(1, d)} бөлігі желінді.<br>
+                        Неше кәмпит желінді?
+                    </div>`;
+
+                    options = [
+                        { html: part, val: part.toString() },
+                        { html: part + 1, val: (part + 1).toString() },
+                        { html: Math.max(1, part - 1), val: Math.max(1, part - 1).toString() },
+                        { html: part * 2, val: (part * 2).toString() }
+                    ];
+                }
+            }
+        } while (usedTasks.has(taskKey) && attempts <= 50);
+
+        usedTasks.add(taskKey);
+
+        if(!isCompareTask) {
+            options = shuffle(options);
+        } else {
+            optContainer.classList.add('compare-layout');
+        }
+
+        options.forEach(opt => {
+            let btn = document.createElement('button');
+            btn.className = 'opt-btn';
+            btn.innerHTML = opt.html;
+            btn.onclick = () => checkAnswer(opt.val);
+            optContainer.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(selectedVal) {
+        let msg = document.getElementById('msg-box');
+
+        if(selectedVal === correctAnswer) {
+            msg.className = "msg ok";
+            msg.innerText = "Дұрыс! Жарарайсың! 👏";
+            
+            playSound('correct');
+            triggerConfetti(false);
+
+            if(isDiagnosticMode) {
+                diagLvlCorrectCount++;
+                if(diagLvlCorrectCount >= DIAG_REQ_PER_LEVEL) {
+                    if(diagCurrentLvl < 8) {
+                        diagCurrentLvl++;
+                        diagLvlCorrectCount = 0;
+                        setTimeout(() => {
+                            alert(`Өте жақсы! ${diagCurrentLvl - 1}-деңгей аяқталды. Келесі деңгей тексеріледі.`);
+                            generateTask();
+                            updateHeader();
+                        }, 300);
+                    } else {
+                        setTimeout(() => {
+                            playSound('win');
+                            triggerConfetti(true);
+                            alert(`Құттықтаймыз! Диагностика аяқталды! 🎉`);
+                            selectLevel(8, false);
+                        }, 300);
+                    }
+                } else {
+                    setTimeout(generateTask, 600);
+                }
+            } else {
+                streak++;
+                if(streak > maxStreak) maxStreak = streak;
+
+                if(!earnedMedals.includes(currentLvl)) {
+                    earnedMedals.push(currentLvl);
+                }
+
+                if(streak % REQ_STREAK_LEVEL === 0) {
+                    playSound('win');
+                    triggerConfetti(true);
+
+                    if(currentLvl < 8) {
+                        let nextLvl = currentLvl + 1;
+                        setTimeout(() => {
+                            alert(`Құттықтаймыз! ${currentLvl}-деңгейде ${REQ_STREAK_LEVEL} дұрыс жауап жинап, медаль алдыңыз! 🎉`);
+                            selectLevel(nextLvl, true); 
+                        }, 500);
+                    } else {
+                        setTimeout(() => {
+                            alert(`Тамаша! Барлық есептерді үздік орындап шықтыңыз! 🏆`);
+                            generateTask();
+                        }, 500);
+                    }
+                } else {
+                    setTimeout(generateTask, 600);
+                }
+            }
+        } else {
+            msg.className = "msg err";
+            playSound('error');
+            
+            if(isDiagnosticMode) {
+                msg.innerText = "Диагностика аяқталды!";
+                setTimeout(() => {
+                    let reachedLvl = diagCurrentLvl;
+                    alert(`Диагностика нәтижесі: Оқушы ${reachedLvl}-деңгейге дейін сәтті өтті! 🏅`);
+                    selectLevel(reachedLvl, false);
+                }, 500);
+            } else {
+                streak = 0;
+                msg.innerText = "Қате! Басынан бастаймыз! 🔄";
+                setTimeout(generateTask, 1000);
+            }
+        }
+        updateHeader();
+    }
+
+    generateTask();
+</script>
+
+</body>
+</html>
